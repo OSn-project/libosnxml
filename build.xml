@@ -1,0 +1,19 @@
+<project name="xmlparse" default="compile">
+    <taskdef resource="cpptasks.tasks"/>
+    <taskdef resource="cpptasks.types"/>
+    
+    <import file="../../libs.xml"/>
+    
+    <target name="compile">
+        <mkdir dir="target/main/obj"/>
+        <echo>${lib.libbase.include}</echo>
+        <cc outtype="static" subsystem="console" outfile="libosnxml.a" objdir="src/">
+           <includepath path="include/"/>
+           <includepath path="include/xml"/>
+           <sysincludepath path="${lib.libbase.include}"/>
+           
+           <!--<fileset dir="src/" includes=""/>-->
+           <fileset file="src/xml.cpp"/>
+        </cc>
+    </target>
+</project>

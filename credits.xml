@@ -1,0 +1,6 @@
+<project name="osnxml" license="MIT" description="OSn XML parser">
+	<contributor github="albert-tomanek" email="albert.tomanek@gmail.com">Albert Tománek</contributor>
+	<project name="ezxml" license="MIT" website="http://ezxml.sourceforge.net/" github="lxfontes/ezxml">
+		<contributor email="aaron@voisine.org" github="lxfontes">Aaron Voisine</contributor>
+	</project>
+</project>
