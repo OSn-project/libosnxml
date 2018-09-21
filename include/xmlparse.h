@@ -2,6 +2,7 @@
 #define __XMLPARSE_H__
 
 #include <osndef.h>
+#include <stdio.h>
 
 class XML
 {

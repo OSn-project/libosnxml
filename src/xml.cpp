@@ -908,7 +908,6 @@ XML::Root :: Root(const char *name) : XML(name)
 {
 	static char *ent[] = { "lt;", "&#60;", "gt;", "&#62;", "quot;", "&#34;",
 						   "apos;", "&#39;", "amp;", "&#38;", NULL };
-	this->name = (char *)name;
 	this->cur = this;
 	strcpy(this->err, this->txt = "");
 	this->ent = (char **) memcpy((char *) malloc(sizeof(ent)), ent, sizeof(ent));
@@ -920,46 +919,55 @@ XML :: XML(const char *name)
 	this->name = (char *) name;
 	this->txt  = "";
 	this->attr = EZXML_NIL;
+	this->off  = 0;
+	
+	this->parent  = NULL;
+	this->child   = NULL;
+	this->next    = NULL;
+	this->sibling = NULL;
+	this->ordered = NULL;
+	
+	this->flags = 0;
 }
 
 // inserts an existing tag into an ezxml structure
 void XML :: insert(XML *node, size_t off)
 {
-	XML *cur, *prev, *head;
+    XML *cur, *prev, *head;
 
-	this->next = this->sibling = this->ordered = NULL;
-	this->off = off;
-	this->parent = this;
+    node->next = node->sibling = node->ordered = NULL;
+    node->off = off;
+    node->parent = this;
 
-	if ((head = this->child)) { // already have sub tags
-		if (head->off <= off) { // not first subtag
-			for (cur = head; cur->ordered && cur->ordered->off <= off;
-				 cur = cur->ordered);
-			this->ordered = cur->ordered;
-			cur->ordered = this;
-		}
-		else { // first subtag
-			this->ordered = head;
-			this->child = this;
-		}
+    if ((head = this->child)) { // already have sub tags
+        if (head->off <= off) { // not first subtag
+            for (cur = head; cur->ordered && cur->ordered->off <= off;
+                 cur = cur->ordered);
+            node->ordered = cur->ordered;
+            cur->ordered = node;
+        }
+        else { // first subtag
+            node->ordered = head;
+            this->child = node;
+        }
 
-		for (cur = head, prev = NULL; cur && strcmp(cur->name, this->name);
-			 prev = cur, cur = cur->sibling); // find tag type
-		if (cur && cur->off <= off) { // not first of type
-			while (cur->next && cur->next->off <= off) cur = cur->next;
-			this->next = cur->next;
-			cur->next = this;
-		}
-		else { // first tag of this type
-			if (prev && cur) prev->sibling = cur->sibling; // remove old first
-			this->next = cur; // old first tag is now next
-			for (cur = head, prev = NULL; cur && cur->off <= off;
-				 prev = cur, cur = cur->sibling); // new sibling insert point
-			this->sibling = cur;
-			if (prev) prev->sibling = this;
-		}
-	}
-	else this->child = this; // only sub tag
+        for (cur = head, prev = NULL; cur && strcmp(cur->name, node->name);
+             prev = cur, cur = cur->sibling); // find tag type
+        if (cur && cur->off <= off) { // not first of type
+            while (cur->next && cur->next->off <= off) cur = cur->next;
+            node->next = cur->next;
+            cur->next = node;
+        }
+        else { // first tag of this type
+            if (prev && cur) prev->sibling = cur->sibling; // remove old first
+            node->next = cur; // old first tag is now next
+            for (cur = head, prev = NULL; cur && cur->off <= off;
+                 prev = cur, cur = cur->sibling); // new sibling insert point
+            node->sibling = cur;
+            if (prev) prev->sibling = node;
+        }
+    }
+    else this->child = node; // only sub tag
 }
 
 XML *XML :: add_child(const char *name, size_t off)
@@ -1071,16 +1079,16 @@ XML *XML :: cut(XML *node)
 #ifdef EZXML_TEST // test harness
 int main(int argc, char **argv)
 {
-	XML *node;
+	XML *xml;
 	char *s;
 	int i;
 
 	if (argc != 2) return fprintf(stderr, "usage: %s xmlfile\n", argv[0]);
 
 	xml = XML::parse_file(argv[1]);
-	printf("%s\n", (s = XML *oxml(xml)));
+	printf("%s\n", (s = XML::to_xml(xml)));
 	free(s);
-	i = fprintf(stderr, "%s", ezxml_error(xml));
+	i = fprintf(stderr, "%s", XML::get_error(xml));
 	delete xml;
 	return (i) ? 1 : 0;
 }
