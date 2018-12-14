@@ -1076,6 +1076,18 @@ XML *XML :: cut(XML *node)
 	return node;
 }
 
+bool XML :: parse_bool(const char *attr_text, bool *result)
+{
+	if (strcmp(attr_text, "true") == 0)
+		*result = true;
+	else if (strcmp(attr_text, "false") == 0)
+		*result = false;
+	else
+		return false;
+
+	return true;
+}
+
 #ifdef EZXML_TEST // test harness
 int main(int argc, char **argv)
 {

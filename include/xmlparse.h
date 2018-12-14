@@ -55,6 +55,9 @@ public:
 	
 	static char *to_xml(XML *node);
 	
+	/* Misc. */
+
+	static bool parse_bool(const char *attr_text, bool *result);	// Parses the "true"/"false" string into the given . Note that the return value is used to signify an error and is NOT THE PARSED RESULT!
 	static const char *get_error(XML *node);		// Get parser error
 };
 
